@@ -10,43 +10,43 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as StayRouteImport } from './routes/stay.'
+import { Route as StaySlugRouteImport } from './routes/stay.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StayRoute = StayRouteImport.update({
-  id: '/stay/',
-  path: '/stay/',
+const StaySlugRoute = StaySlugRouteImport.update({
+  id: '/stay/$slug',
+  path: '/stay/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/stay/': typeof StayRoute
+  '/stay/$slug': typeof StaySlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/stay': typeof StayRoute
+  '/stay/$slug': typeof StaySlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/stay/': typeof StayRoute
+  '/stay/$slug': typeof StaySlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/stay/'
+  fullPaths: '/' | '/stay/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/stay'
-  id: '__root__' | '/' | '/stay/'
+  to: '/' | '/stay/$slug'
+  id: '__root__' | '/' | '/stay/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  StayRoute: typeof StayRoute
+  StaySlugRoute: typeof StaySlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,11 +58,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/stay/': {
-      id: '/stay/'
-      path: '/stay'
-      fullPath: '/stay/'
-      preLoaderRoute: typeof StayRouteImport
+    '/stay/$slug': {
+      id: '/stay/$slug'
+      path: '/stay/$slug'
+      fullPath: '/stay/$slug'
+      preLoaderRoute: typeof StaySlugRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -70,7 +70,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  StayRoute: StayRoute,
+  StaySlugRoute: StaySlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

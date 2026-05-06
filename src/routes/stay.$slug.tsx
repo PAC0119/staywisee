@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { getProperty, PROPERTIES } from "@/components/staywise/properties";
 
-export const Route = createFileRoute("/stay/")({
+export const Route = createFileRoute("/stay/$slug")({
   loader: ({ params }) => {
     const property = getProperty(params.slug);
     if (!property) throw notFound();
