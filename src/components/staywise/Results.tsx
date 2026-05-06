@@ -3,7 +3,9 @@ import {
   Hotel, Home, Tent, Mountain, Building2, Heart, Phone, MessageCircle,
   Globe2, MapPin, Shield, Sparkles, Utensils, Car, BadgeCheck, ArrowRight, Bookmark
 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import type { TripPlan } from "./SearchPanel";
+import { PROPERTIES } from "./properties";
 
 const inr = (n: number) => "₹" + n.toLocaleString("en-IN");
 
@@ -111,7 +113,7 @@ export function Results({ plan }: { plan: TripPlan }) {
         {/* Recommended properties */}
         <SectionTitle eyebrow="Recommended for you" title="Verified stays nearby" />
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 mb-12">
-          {RECS.map((r, i) => <PropertyCard key={r.name} r={r} index={i} />)}
+          {RECS.map((r, i) => <PropertyCard key={r.name} r={r} index={i} days={plan.days} />)}
         </div>
 
         {/* Split stay planner */}
@@ -196,25 +198,12 @@ function BudgetBar({ label, value, total, color }:
   );
 }
 
-type Rec = {
-  name: string; type: string; area: string; price: number; total: number;
-  food: string; safety: number; clean: number; badge: string; distance: string;
-  accent: string;
-};
+const RECS = PROPERTIES;
 
-const RECS: Rec[] = [
-  { name: "Sunder Niwas Homestay", type: "Homestay", area: "Bani Park", price: 1850, total: 7400,
-    food: "Home-cooked veg breakfast", safety: 9.2, clean: 9.4, badge: "Family-friendly",
-    distance: "1.1 km from City Palace", accent: "var(--saffron)" },
-  { name: "The Pink Door Hostel", type: "Hostel", area: "M.I. Road", price: 650, total: 2600,
-    food: "Cafe on site", safety: 8.6, clean: 8.9, badge: "Solo-friendly",
-    distance: "400 m from food street", accent: "var(--teal)" },
-  { name: "Hotel Amer Heritage", type: "Hotel", area: "Civil Lines", price: 2400, total: 9600,
-    food: "Breakfast included", safety: 9.0, clean: 9.1, badge: "Parents-approved",
-    distance: "Near Jaipur Junction", accent: "var(--coral)" },
-];
-
-function PropertyCard({ r, index }: { r: Rec; index: number }) {
+function PropertyCard({ r, index, days }: { r: typeof PROPERTIES[number]; index: number; days: number }) {
+  const safetyAvg = +(r.safety.reduce((a, s) => a + s.score, 0) / r.safety.length).toFixed(1);
+  const cleanAvg = +(r.cleanliness.reduce((a, s) => a + s.score, 0) / r.cleanliness.length).toFixed(1);
+  const total = r.price * days;
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
@@ -235,24 +224,39 @@ function PropertyCard({ r, index }: { r: Rec; index: number }) {
       </div>
       <div className="p-5">
         <div className="flex items-start justify-between gap-3 mb-1">
-          <h4 className="font-semibold leading-tight">{r.name}</h4>
+          <Link
+            to="/stay/$slug"
+            params={{ slug: r.slug }}
+            className="font-semibold leading-tight hover:text-coral transition-colors"
+            style={{ color: undefined }}
+          >
+            {r.name}
+          </Link>
           <span className="text-[11px] px-2 py-0.5 rounded-full bg-secondary font-medium">{r.badge}</span>
         </div>
         <div className="text-xs text-muted-foreground flex items-center gap-1 mb-3">
           <MapPin className="w-3 h-3" /> {r.area} · {r.distance}
         </div>
         <div className="flex items-center gap-3 text-[11px] mb-4">
-          <Score icon={<Shield className="w-3 h-3" />} label="Safety" value={r.safety} />
-          <Score icon={<Sparkles className="w-3 h-3" />} label="Clean" value={r.clean} />
+          <Score icon={<Shield className="w-3 h-3" />} label="Safety" value={safetyAvg} />
+          <Score icon={<Sparkles className="w-3 h-3" />} label="Clean" value={cleanAvg} />
           <Score icon={<Utensils className="w-3 h-3" />} label="Food" value={r.food} small />
         </div>
         <div className="flex items-baseline gap-2 mb-4">
           <div className="text-2xl font-bold">{inr(r.price)}</div>
-          <div className="text-xs text-muted-foreground">/ night · total {inr(r.total)}</div>
+          <div className="text-xs text-muted-foreground">/ night · total {inr(total)}</div>
         </div>
+        <Link
+          to="/stay/$slug"
+          params={{ slug: r.slug }}
+          className="block text-center text-xs font-semibold py-2.5 rounded-xl text-white shadow-glow-coral mb-2"
+          style={{ backgroundImage: "var(--gradient-warm)" }}
+        >
+          View details & contact →
+        </Link>
         <div className="grid grid-cols-3 gap-2">
           <ActionBtn icon={<Globe2 className="w-3.5 h-3.5" />} label="Site" />
-          <ActionBtn icon={<MessageCircle className="w-3.5 h-3.5" />} label="WhatsApp" highlight />
+          <ActionBtn icon={<MessageCircle className="w-3.5 h-3.5" />} label="WhatsApp" />
           <ActionBtn icon={<Phone className="w-3.5 h-3.5" />} label="Call" />
         </div>
       </div>
