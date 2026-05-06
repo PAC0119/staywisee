@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { getProperty, PROPERTIES } from "@/components/staywise/properties";
 
-export const Route = createFileRoute("/stay/$slug")({
+export const Route = createFileRoute("/stay/")({
   loader: ({ params }) => {
     const property = getProperty(params.slug);
     if (!property) throw notFound();
@@ -119,7 +119,6 @@ function StayDetails() {
           </motion.div>
         </div>
       </section>
-
       {/* CONTENT GRID */}
       <section className="max-w-6xl mx-auto px-5 md:px-10 py-12 grid lg:grid-cols-3 gap-8">
         {/* LEFT */}
@@ -320,7 +319,6 @@ function StayDetails() {
           </div>
         </aside>
       </section>
-
       {/* Other stays */}
       <section className="max-w-6xl mx-auto px-5 md:px-10 pb-20">
         <div className="text-xs uppercase tracking-widest font-medium mb-2" style={{ color: "var(--coral)" }}>
@@ -346,7 +344,7 @@ function StayDetails() {
         </div>
       </section>
     </div>
-  );
+  )
 }
 
 function Block({
