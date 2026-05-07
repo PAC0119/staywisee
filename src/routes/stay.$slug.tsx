@@ -5,7 +5,7 @@ import {
   MapPin, MessageCircle, Phone, Shield, Sparkles, Utensils, XCircle, Clock, Star,
   Navigation, Footprints
 } from "lucide-react";
-import { getProperty, PROPERTIES } from "@/components/staywise/properties";
+import { getProperty, PROPERTIES, type Property } from "@/components/staywise/properties";
 
 export const Route = createFileRoute("/stay/$slug")({
   loader: ({ params }) => {
@@ -67,7 +67,7 @@ function NotFound() {
 }
 
 function StayDetails() {
-  const { property: p } = Route.useLoaderData();
+  const { property: p } = Route.useLoaderData() as { property: Property };
   const safetyAvg = avg(p.safety);
   const cleanAvg = avg(p.cleanliness);
 
