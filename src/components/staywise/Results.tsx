@@ -6,6 +6,7 @@ import {
 import { Link } from "@tanstack/react-router";
 import type { TripPlan } from "./SearchPanel";
 import { PROPERTIES } from "./properties";
+import { Itinerary } from "./Itinerary";
 
 const inr = (n: number) => "₹" + n.toLocaleString("en-IN");
 
@@ -134,6 +135,9 @@ export function Results({ plan }: { plan: TripPlan }) {
             </motion.div>
           ))}
         </div>
+
+        {/* Day-by-day itinerary */}
+        <Itinerary plan={plan} />
 
         {/* Food + Travel */}
         <div className="grid md:grid-cols-2 gap-5">
