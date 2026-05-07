@@ -39,7 +39,7 @@ export function Results({ plan }: { plan: TripPlan }) {
           </div>
           <h2 className="text-3xl md:text-5xl font-bold tracking-tight">
             {plan.days} days in <span className="text-gradient-warm">{plan.destination}</span>,
-            <br className="hidden md:block" /> built for {plan.people} {plan.group.toLowerCase()}.
+            <br className="hidden md:block" /> built for {plan.people} traveler{plan.people > 1 ? "s" : ""} · {plan.group.join(" + ").toLowerCase()}.
           </h2>
         </motion.div>
 

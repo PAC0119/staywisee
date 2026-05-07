@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { MapPin, Calendar, Users, Wallet, Search, Sparkles } from "lucide-react";
+import { MapPin, Calendar, Users, Wallet, Search, Sparkles, Check } from "lucide-react";
 
 export type TripPlan = {
   destination: string;
   days: number;
   people: number;
   budget: number;
-  group: string;
-  purpose: string;
-  food: string;
+  group: string[];
+  purpose: string[];
+  food: string[];
   comfort: string;
   splitStay: boolean;
 };
@@ -25,15 +25,22 @@ export function SearchPanel({ onSearch }: { onSearch: (p: TripPlan) => void }) {
     days: 4,
     people: 3,
     budget: 18000,
-    group: "Parents",
-    purpose: "Sightseeing",
-    food: "Vegetarian",
+    group: ["Parents", "Family"],
+    purpose: ["Sightseeing"],
+    food: ["Vegetarian"],
     comfort: "Balanced",
     splitStay: true,
   });
 
   const update = <K extends keyof TripPlan>(k: K, v: TripPlan[K]) =>
     setPlan((p) => ({ ...p, [k]: v }));
+
+  const toggleMulti = (k: "group" | "purpose" | "food", v: string) =>
+    setPlan((p) => {
+      const arr = p[k];
+      const next = arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
+      return { ...p, [k]: next.length ? next : arr };
+    });
 
   return (
     <motion.div
@@ -84,14 +91,16 @@ export function SearchPanel({ onSearch }: { onSearch: (p: TripPlan) => void }) {
       </div>
 
       {/* Chips */}
-      <ChipRow label="Who's traveling" options={groups}
-               value={plan.group} onChange={(v) => update("group", v)} />
-      <ChipRow label="Purpose" options={purposes}
-               value={plan.purpose} onChange={(v) => update("purpose", v)} />
-      <ChipRow label="Food" options={foods}
-               value={plan.food} onChange={(v) => update("food", v)} />
-      <ChipRow label="Comfort" options={comforts}
-               value={plan.comfort} onChange={(v) => update("comfort", v)} />
+      <ChipRow label="Who's traveling · pick any" options={groups} multi
+               values={plan.group} onToggle={(v) => toggleMulti("group", v)} />
+      <ChipRow label="Purpose · pick any" options={purposes} multi
+               values={plan.purpose} onToggle={(v) => toggleMulti("purpose", v)} />
+      <ChipRow label="Food · pick any" options={foods} multi
+               values={plan.food} onToggle={(v) => toggleMulti("food", v)} />
+      <ChipRow label="Comfort"
+               options={comforts}
+               value={plan.comfort}
+               onChange={(v) => update("comfort", v)} />
 
       {/* Split stay */}
       <label className="mt-4 flex items-center justify-between p-3 rounded-2xl bg-secondary/60 cursor-pointer">
@@ -140,26 +149,30 @@ function Field({ icon, label, children }: { icon: React.ReactNode; label: string
   );
 }
 
-function ChipRow({ label, options, value, onChange }:
-  { label: string; options: string[]; value: string; onChange: (v: string) => void }) {
+type ChipRowProps =
+  | { label: string; options: string[]; multi?: false; value: string; onChange: (v: string) => void; values?: never; onToggle?: never }
+  | { label: string; options: string[]; multi: true; values: string[]; onToggle: (v: string) => void; value?: never; onChange?: never };
+
+function ChipRow(props: ChipRowProps) {
+  const { label, options } = props;
   return (
     <div className="mt-4">
       <div className="text-[11px] font-medium text-muted-foreground mb-1.5">{label}</div>
       <div className="flex flex-wrap gap-1.5">
         {options.map((o) => {
-          const active = o === value;
+          const active = props.multi ? props.values.includes(o) : o === props.value;
           return (
             <button
               key={o}
-              onClick={() => onChange(o)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+              onClick={() => (props.multi ? props.onToggle(o) : props.onChange(o))}
+              className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                 active
                   ? "text-white shadow-glow-coral"
                   : "bg-secondary text-foreground hover:bg-muted"
               }`}
               style={active ? { backgroundImage: "var(--gradient-warm)" } : undefined}
             >
-              {o}
+              {props.multi && active && <Check className="w-3 h-3" />}{o}
             </button>
           );
         })}
