@@ -2,7 +2,8 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import {
   ArrowLeft, BadgeCheck, Bookmark, Car, CheckCircle2, Compass, Globe2,
-  MapPin, MessageCircle, Phone, Shield, Sparkles, Utensils, XCircle, Clock, Star
+  MapPin, MessageCircle, Phone, Shield, Sparkles, Utensils, XCircle, Clock, Star,
+  Navigation, Footprints
 } from "lucide-react";
 import { getProperty, PROPERTIES } from "@/components/staywise/properties";
 
@@ -40,6 +41,8 @@ export const Route = createFileRoute("/stay/$slug")({
 });
 
 const inr = (n: number) => "₹" + n.toLocaleString("en-IN");
+const dirUrl = (origin: string, dest: string, mode: "driving" | "walking") =>
+  `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(dest)}&travelmode=${mode}`;
 const avg = (xs: { score: number }[]) =>
   +(xs.reduce((a, x) => a + x.score, 0) / xs.length).toFixed(1);
 
@@ -150,10 +153,14 @@ function StayDetails() {
                     <th className="text-right px-4 py-3 font-medium">Distance</th>
                     <th className="text-right px-4 py-3 font-medium">Auto</th>
                     <th className="text-right px-4 py-3 font-medium">Cab</th>
+                    <th className="text-right px-4 py-3 font-medium">Directions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {p.distances.map((d, i) => (
+                  {p.distances.map((d, i) => {
+                    const origin = `${p.name}, ${p.area}, ${p.city}`;
+                    const dest = `${d.place}, ${p.city}`;
+                    return (
                     <motion.tr
                       key={d.place}
                       initial={{ opacity: 0, y: 6 }}
@@ -166,8 +173,29 @@ function StayDetails() {
                       <td className="px-4 py-3 text-right text-muted-foreground">{d.km} km</td>
                       <td className="px-4 py-3 text-right">{inr(d.auto)}</td>
                       <td className="px-4 py-3 text-right">{inr(d.cab)}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <a
+                            href={dirUrl(origin, dest, "driving")}
+                            target="_blank" rel="noopener noreferrer"
+                            title="Driving directions"
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-secondary hover:bg-muted text-[11px] font-medium"
+                          >
+                            <Navigation className="w-3 h-3" /> Drive
+                          </a>
+                          <a
+                            href={dirUrl(origin, dest, "walking")}
+                            target="_blank" rel="noopener noreferrer"
+                            title="Walking directions"
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-secondary hover:bg-muted text-[11px] font-medium"
+                          >
+                            <Footprints className="w-3 h-3" /> Walk
+                          </a>
+                        </div>
+                      </td>
                     </motion.tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
