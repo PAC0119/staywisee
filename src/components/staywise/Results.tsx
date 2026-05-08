@@ -299,7 +299,7 @@ const SPLIT_PLANS = [
   { tag: "Family combo", title: "Parents in hotel + you in nearby hostel",
     savings: "1.2 km apart · saves ₹4,200", bg: "linear-gradient(135deg, var(--saffron), var(--coral))" },
   { tag: "Local + comfort", title: "Homestay 2 nights + city hotel 1 night",
-    savings: "Authentic + reliable mix", bg: "linear-gradient(135deg, var(--teal), #2563eb)" },
+    savings: "Authentic + reliable mix", bg: "linear-gradient(135deg, var(--teal), var(--pink))" },
   { tag: "Spiritual", title: "Dharamshala near temple + market hotel",
     savings: "Saves up to ₹3,800", bg: "linear-gradient(135deg, var(--pink), var(--saffron))" },
 ];
