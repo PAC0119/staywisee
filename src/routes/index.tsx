@@ -7,6 +7,7 @@ import { WalkingCharacters } from "@/components/staywise/WalkingCharacters";
 import { SearchPanel, type TripPlan } from "@/components/staywise/SearchPanel";
 import { LiquidLoader } from "@/components/staywise/LiquidLoader";
 import { Results } from "@/components/staywise/Results";
+import { DESTINATIONS, destinationsByGroup } from "@/components/staywise/destinations";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -62,17 +63,17 @@ function Index() {
           <div className="text-white reveal">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass text-xs font-medium mb-5">
               <Sparkles className="w-3.5 h-3.5 text-saffron" style={{ color: "var(--saffron)" }} />
-              Smart stay decision engine for India
+              Smart stay decision engine · India + International
             </div>
             <h1 className="font-display text-4xl md:text-6xl font-bold leading-[1.05] tracking-tight mb-5">
-              Find the <span className="text-gradient-warm">smartest stay plan</span> for your trip.
+              Find the <span className="text-gradient-warm">smartest stay plan</span> for any destination.
             </h1>
             <p className="text-base md:text-lg text-white/75 max-w-xl mb-8">
-              Hotels, hostels, homestays, dharamshalas and local stays — matched to your budget,
-              food, people and purpose. No noise. Just the right plan.
+              Hotels, hostels, homestays, local stays, dharamshalas and split-stay plans — matched to
+              your budget, people, food, comfort and purpose. From Jaipur to Bali, Singapore to Goa.
             </p>
             <div className="flex flex-wrap gap-2 text-xs">
-              {["Budget-aware", "Food-aware", "Split-stay smart", "Verified contacts"].map(t => (
+              {["Any destination", "Budget-aware", "Food-aware", "Split-stay smart", "Verified contacts"].map(t => (
                 <span key={t} className="px-3 py-1.5 rounded-full glass text-white/90">{t}</span>
               ))}
             </div>
@@ -140,6 +141,15 @@ function Index() {
       </AnimatePresence>
 
       {/* HOW IT WORKS (when no plan yet) */}
+      {!plan && (
+        <DestinationExplorer onPick={(name) => {
+          // Prefill search by scrolling up; user re-submits with their preferences.
+          const el = document.querySelector<HTMLInputElement>('input[placeholder^="Jaipur"]');
+          if (el) { el.focus(); el.value = name; el.dispatchEvent(new Event("input", { bubbles: true })); }
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }} />
+      )}
+
       {!plan && (
         <section id="how" className="relative py-20 md:py-28">
           <div className="max-w-7xl mx-auto px-5 md:px-10">
