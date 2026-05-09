@@ -13,6 +13,48 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
+function DestinationExplorer({ onPick }: { onPick: (name: string) => void }) {
+  const groups = destinationsByGroup();
+  const order = ["Rajasthan", "Gujarat", "India Popular", "Bali", "Vietnam", "Singapore", "International"];
+  return (
+    <section className="relative py-16 md:py-24 bg-card border-y">
+      <div className="max-w-7xl mx-auto px-5 md:px-10">
+        <div className="max-w-2xl mb-10">
+          <div className="text-xs uppercase tracking-widest font-medium mb-2" style={{ color: "var(--coral)" }}>
+            Explore destinations
+          </div>
+          <h2 className="text-3xl md:text-5xl font-bold tracking-tight">
+            Plan a stay for <span className="text-gradient-warm">any city</span>.
+          </h2>
+          <p className="text-sm text-muted-foreground mt-2">
+            From Rajasthan & Gujarat to Bali, Vietnam, Singapore and beyond — pick a destination to start.
+          </p>
+        </div>
+        <div className="space-y-8">
+          {order.filter((g) => groups[g]?.length).map((g) => (
+            <div key={g}>
+              <div className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">{g}</div>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                {groups[g].slice(0, 12).map((d) => (
+                  <button key={d.id} onClick={() => onPick(d.name)}
+                    className="lift rounded-2xl border bg-background p-4 text-left transition-all">
+                    <div className="text-2xl mb-1">{d.emoji}</div>
+                    <div className="font-semibold text-sm leading-tight">{d.name}</div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{d.tagline}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="text-[11px] text-muted-foreground mt-6">
+          {DESTINATIONS.length}+ destinations · plus smart fallback for any city you type.
+        </p>
+      </div>
+    </section>
+  );
+}
+
 function Index() {
   const [loading, setLoading] = useState(false);
   const [plan, setPlan] = useState<TripPlan | null>(null);
