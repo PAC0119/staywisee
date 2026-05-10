@@ -5,6 +5,7 @@ import {
   Footprints, Navigation, Star, Wallet, Users
 } from "lucide-react";
 import { DESTINATIONS, type Destination } from "@/components/staywise/destinations";
+import { DestinationPlanner } from "@/components/staywise/DestinationPlanner";
 
 export const Route = createFileRoute("/destination/$id")({
   loader: ({ params }) => {
@@ -214,6 +215,9 @@ function DestinationPage() {
               <Compass className="w-4 h-4" /> Plan a stay in {d.name}
             </Link>
           </Block>
+
+          {/* PLANNER + BUDGET CALCULATOR */}
+          <DestinationPlanner d={d} />
         </div>
 
         {/* SIDEBAR */}
