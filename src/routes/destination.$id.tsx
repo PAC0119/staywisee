@@ -215,6 +215,9 @@ function DestinationPage() {
               <Compass className="w-4 h-4" /> Plan a stay in {d.name}
             </Link>
           </Block>
+
+          {/* PLANNER + BUDGET CALCULATOR */}
+          <DestinationPlanner d={d} />
         </div>
 
         {/* SIDEBAR */}
