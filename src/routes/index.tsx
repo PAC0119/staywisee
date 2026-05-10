@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Compass, Sparkles, ShieldCheck, Map } from "lucide-react";
@@ -36,12 +36,18 @@ function DestinationExplorer({ onPick }: { onPick: (name: string) => void }) {
               <div className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">{g}</div>
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
                 {groups[g].slice(0, 12).map((d) => (
-                  <button key={d.id} onClick={() => onPick(d.name)}
-                    className="lift rounded-2xl border bg-background p-4 text-left transition-all">
-                    <div className="text-2xl mb-1">{d.emoji}</div>
-                    <div className="font-semibold text-sm leading-tight">{d.name}</div>
-                    <div className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{d.tagline}</div>
-                  </button>
+                  <div key={d.id} className="lift rounded-2xl border bg-background p-4 text-left transition-all flex flex-col">
+                    <button onClick={() => onPick(d.name)} className="text-left">
+                      <div className="text-2xl mb-1">{d.emoji}</div>
+                      <div className="font-semibold text-sm leading-tight">{d.name}</div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{d.tagline}</div>
+                    </button>
+                    <Link to="/destination/$id" params={{ id: d.id }}
+                      className="mt-2 text-[10px] font-medium underline-offset-2 hover:underline"
+                      style={{ color: "var(--coral)" }}>
+                      View guide →
+                    </Link>
+                  </div>
                 ))}
               </div>
             </div>
