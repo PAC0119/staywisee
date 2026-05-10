@@ -33,10 +33,14 @@ export const Route = createRootRoute({
       { name: "description", content: "StayWise matches you to the smartest mix of hotels, hostels, homestays, dharamshalas and local stays — by budget, food, people and purpose." },
       { name: "author", content: "StayWise" },
       { property: "og:title", content: "StayWise — Smart stay decisions for Indian travelers" },
-      { property: "og:description", content: "Hotels, hostels, homestays, dharamshalas — matched to your trip." },
+      { property: "og:description", content: "StayWise matches you to the smartest mix of hotels, hostels, homestays, dharamshalas and local stays — by budget, food, people and purpose." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "StayWise — Smart stay decisions for Indian travelers" },
+      { name: "twitter:description", content: "StayWise matches you to the smartest mix of hotels, hostels, homestays, dharamshalas and local stays — by budget, food, people and purpose." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/fYKqALvA4mYuMPjLzeXiDaQmzHu1/social-images/social-1778417310630-staywisee.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/fYKqALvA4mYuMPjLzeXiDaQmzHu1/social-images/social-1778417310630-staywisee.webp" },
     ],
     links: [
       {
