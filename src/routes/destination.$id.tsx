@@ -234,6 +234,9 @@ function DestinationPage() {
             </div>
           </Block>
 
+          {/* PRICE PREDICTION */}
+          <PricePrediction d={d} />
+
           {/* FOOD */}
           <Block eyebrow="Food highlights" title="What to eat & where" icon={<Utensils className="w-5 h-5" />}>
             <div className="grid sm:grid-cols-2 gap-3">
