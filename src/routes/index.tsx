@@ -1,25 +1,60 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Compass, Sparkles, ShieldCheck, Map } from "lucide-react";
+import { Compass, Sparkles, ShieldCheck, Map, Quote } from "lucide-react";
 import { AnimatedGlobe } from "@/components/staywise/AnimatedGlobe";
 import { WalkingCharacters } from "@/components/staywise/WalkingCharacters";
 import { SearchPanel, type TripPlan } from "@/components/staywise/SearchPanel";
 import { LiquidLoader } from "@/components/staywise/LiquidLoader";
 import { Results } from "@/components/staywise/Results";
-import { DESTINATIONS, destinationsByGroup } from "@/components/staywise/destinations";
+import { DESTINATIONS, destinationsByGroup, type Destination } from "@/components/staywise/destinations";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
+// ---------- Category mapping for filter chips ----------
+const CATEGORY_IDS: Record<string, string[]> = {
+  Beach: ["goa", "bali", "maldives", "thailand", "srilanka", "sri-lanka", "gokarna"],
+  "Hill station": ["manali", "shimla", "dharamshala", "kasol", "mount-abu", "saputara", "mussoorie"],
+  Heritage: ["jaipur", "jodhpur", "udaipur", "jaisalmer", "varanasi", "agra", "ahmedabad", "hampi"],
+  Spiritual: ["varanasi", "rishikesh", "haridwar", "pushkar", "dwarka", "somnath", "ajmer", "tirupati"],
+  Adventure: ["manali", "kasol", "rishikesh", "ranthambore", "gir"],
+  Wildlife: ["ranthambore", "gir", "corbett"],
+  International: ["bali", "vietnam", "singapore", "dubai", "thailand", "malaysia", "maldives", "srilanka", "sri-lanka", "nepal", "bhutan", "paris", "london", "tokyo", "hanoi", "bangkok"],
+};
+const CATEGORIES = ["All", "Beach", "Hill station", "Heritage", "Spiritual", "Adventure", "Wildlife", "International", "Budget (under ₹2k/night)"];
+
+function destMatchesCategory(d: Destination, cat: string): boolean {
+  if (cat === "All") return true;
+  if (cat === "Budget (under ₹2k/night)") return d.budget.hotel[0] < 2000;
+  if (cat === "International") return d.country !== "India" || CATEGORY_IDS.International.includes(d.id);
+  const ids = CATEGORY_IDS[cat] || [];
+  if (ids.includes(d.id)) return true;
+  // Also match by types/tagline keywords as a soft fallback
+  const t = d.types.join(" ") + " " + d.tagline.toLowerCase();
+  const kw: Record<string, string[]> = {
+    Beach: ["beach", "island"],
+    "Hill station": ["hill", "mountain"],
+    Heritage: ["heritage", "havelis"],
+    Spiritual: ["spiritual", "temple", "ghat"],
+    Adventure: ["adventure", "trek"],
+    Wildlife: ["wildlife", "safari"],
+  };
+  return (kw[cat] || []).some((k) => t.includes(k));
+}
+
 function DestinationExplorer({ onPick }: { onPick: (name: string) => void }) {
   const groups = destinationsByGroup();
   const order = ["Rajasthan", "Gujarat", "India Popular", "Bali", "Vietnam", "Singapore", "International"];
+  const [cat, setCat] = useState("All");
+
+  const filtered = cat === "All" ? null : DESTINATIONS.filter((d) => destMatchesCategory(d, cat));
+
   return (
     <section className="relative py-16 md:py-24 bg-card border-y">
       <div className="max-w-7xl mx-auto px-5 md:px-10">
-        <div className="max-w-2xl mb-10">
+        <div className="max-w-2xl mb-6">
           <div className="text-xs uppercase tracking-widest font-medium mb-2" style={{ color: "var(--coral)" }}>
             Explore destinations
           </div>
@@ -30,29 +65,50 @@ function DestinationExplorer({ onPick }: { onPick: (name: string) => void }) {
             From Rajasthan & Gujarat to Bali, Vietnam, Singapore and beyond — pick a destination to start.
           </p>
         </div>
-        <div className="space-y-8">
-          {order.filter((g) => groups[g]?.length).map((g) => (
-            <div key={g}>
-              <div className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">{g}</div>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                {groups[g].slice(0, 12).map((d) => (
-                  <div key={d.id} className="lift rounded-2xl border bg-background p-4 text-left transition-all flex flex-col">
-                    <button onClick={() => onPick(d.name)} className="text-left">
-                      <div className="text-2xl mb-1">{d.emoji}</div>
-                      <div className="font-semibold text-sm leading-tight">{d.name}</div>
-                      <div className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{d.tagline}</div>
-                    </button>
-                    <Link to="/destination/$id" params={{ id: d.id }}
-                      className="mt-2 text-[10px] font-medium underline-offset-2 hover:underline"
-                      style={{ color: "var(--coral)" }}>
-                      View guide →
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
+
+        {/* Filter chips — sticky under the heading */}
+        <div className="sticky top-0 z-20 -mx-5 md:-mx-10 px-5 md:px-10 py-3 mb-6 bg-card/90 backdrop-blur border-b">
+          <div className="flex gap-2 overflow-x-auto no-scrollbar -mb-1 pb-1">
+            {CATEGORIES.map((c) => {
+              const active = c === cat;
+              return (
+                <button
+                  key={c}
+                  onClick={() => setCat(c)}
+                  className={`shrink-0 inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-medium transition-all border ${
+                    active ? "text-white border-transparent shadow-glow-coral" : "bg-background text-foreground border-border hover:bg-secondary"
+                  }`}
+                  style={active ? { backgroundImage: "var(--gradient-warm)" } : undefined}
+                >
+                  {c}
+                </button>
+              );
+            })}
+          </div>
         </div>
+
+        {filtered ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {filtered.map((d) => <DestCard key={d.id} d={d} onPick={onPick} />)}
+            {filtered.length === 0 && (
+              <div className="col-span-full text-sm text-muted-foreground py-8 text-center">
+                No destinations match yet — try another category.
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {order.filter((g) => groups[g]?.length).map((g) => (
+              <div key={g}>
+                <div className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">{g}</div>
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                  {groups[g].slice(0, 12).map((d) => <DestCard key={d.id} d={d} onPick={onPick} />)}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         <p className="text-[11px] text-muted-foreground mt-6">
           {DESTINATIONS.length}+ destinations · plus smart fallback for any city you type.
         </p>
@@ -60,6 +116,29 @@ function DestinationExplorer({ onPick }: { onPick: (name: string) => void }) {
     </section>
   );
 }
+
+function DestCard({ d, onPick }: { d: Destination; onPick: (name: string) => void }) {
+  return (
+    <div className="lift rounded-2xl border bg-background p-4 text-left transition-all flex flex-col">
+      <button onClick={() => onPick(d.name)} className="text-left">
+        <div className="text-2xl mb-1">{d.emoji}</div>
+        <div className="font-semibold text-sm leading-tight">{d.name}</div>
+        <div className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{d.tagline}</div>
+      </button>
+      <Link to="/destination/$id" params={{ id: d.id }}
+        className="mt-2 text-[10px] font-medium underline-offset-2 hover:underline"
+        style={{ color: "var(--coral)" }}>
+        View guide →
+      </Link>
+    </div>
+  );
+}
+
+const TESTIMONIALS = [
+  { quote: "Saved ₹2,200 on our Udaipur trip by doing split-stay. Parents in a heritage hotel, we stayed at a hostel 800m away.", name: "Priya S.", city: "Mumbai" },
+  { quote: "Found a Jain-friendly homestay in Varanasi in under 2 minutes. No other site even has that filter.", name: "Ravi M.", city: "Ahmedabad" },
+  { quote: "Manali in October — StayWise told me to go shoulder season. Saved a lot, zero crowds.", name: "Ankit D.", city: "Delhi" },
+];
 
 function Index() {
   const [loading, setLoading] = useState(false);
@@ -93,8 +172,12 @@ function Index() {
             <a href="#types" className="hover:text-white transition">Stay types</a>
             <a href="#trust" className="hover:text-white transition">Trust</a>
           </nav>
-          <button className="hidden md:inline-flex px-4 py-2 rounded-full text-sm font-medium text-white border border-white/30 hover:bg-white/10 transition">
-            Open app
+          <button
+            onClick={() => document.getElementById("planner")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+            className="inline-flex px-4 py-2 rounded-full text-sm font-semibold text-white shadow-glow-coral hover:opacity-95 transition"
+            style={{ backgroundImage: "var(--gradient-warm)" }}
+          >
+            Plan my stay →
           </button>
         </div>
       </header>
@@ -135,7 +218,7 @@ function Index() {
             <div className="md:hidden mb-6">
               <AnimatedGlobe size={260} />
             </div>
-            <div className="relative w-full md:mt-32">
+            <div id="planner" className="relative w-full md:mt-32 scroll-mt-24">
               <SearchPanel onSearch={handleSearch} />
             </div>
           </div>
@@ -172,6 +255,32 @@ function Index() {
               <div className="text-xs text-muted-foreground">{s.label}</div>
             </motion.div>
           ))}
+        </div>
+      </section>
+
+      {/* TESTIMONIALS */}
+      <section className="py-12 bg-background border-b">
+        <div className="max-w-7xl mx-auto px-5 md:px-10">
+          <div className="text-xs uppercase tracking-widest font-medium mb-4" style={{ color: "var(--coral)" }}>
+            Travellers say
+          </div>
+          <div className="grid md:grid-cols-3 gap-4">
+            {TESTIMONIALS.map((t, i) => (
+              <motion.div
+                key={t.name}
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+                className="rounded-2xl bg-card border border-l-4 p-5 shadow-soft"
+                style={{ borderLeftColor: "var(--coral)" }}
+              >
+                <Quote className="w-4 h-4 mb-2" style={{ color: "var(--coral)" }} />
+                <p className="text-sm leading-relaxed text-foreground">{t.quote}</p>
+                <div className="text-xs text-muted-foreground mt-3 font-medium">— {t.name}, {t.city}</div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 

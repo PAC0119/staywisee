@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Calendar, Users, Wallet, Search, Sparkles, Check, Globe2 } from "lucide-react";
+import { MapPin, Calendar, Users, Wallet, Search, Sparkles, Check, Globe2, ChevronDown } from "lucide-react";
 import {
   DESTINATIONS, suggestDestinations, findDestination, genericDestination,
   type Destination,
@@ -32,6 +32,7 @@ const TRENDING = ["jaipur", "goa", "manali", "bali", "vietnam", "singapore"]
 export function SearchPanel({ onSearch }: { onSearch: (p: TripPlan) => void }) {
   const [destinationText, setDestinationText] = useState("Jaipur");
   const [open, setOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
 
   const [plan, setPlan] = useState<Omit<TripPlan, "destination" | "destinationId" | "resolved">>({
@@ -156,45 +157,64 @@ export function SearchPanel({ onSearch }: { onSearch: (p: TripPlan) => void }) {
           </AnimatePresence>
         </div>
 
-        <Field icon={<Calendar className="w-4 h-4" />} label="Days">
-          <input type="number" min={1} max={30} value={plan.days}
-            onChange={(e) => update("days", +e.target.value)}
-            className="w-full bg-transparent outline-none font-medium" />
-        </Field>
-        <Field icon={<Users className="w-4 h-4" />} label="People">
-          <input type="number" min={1} max={20} value={plan.people}
-            onChange={(e) => update("people", +e.target.value)}
-            className="w-full bg-transparent outline-none font-medium" />
-        </Field>
+        {/* Days/People — hidden on mobile until "More filters" expanded */}
+        <div className={`${moreOpen ? "block" : "hidden"} md:block`}>
+          <Field icon={<Calendar className="w-4 h-4" />} label="Days">
+            <input type="number" min={1} max={30} value={plan.days}
+              onChange={(e) => update("days", +e.target.value)}
+              className="w-full bg-transparent outline-none font-medium" />
+          </Field>
+        </div>
+        <div className={`${moreOpen ? "block" : "hidden"} md:block`}>
+          <Field icon={<Users className="w-4 h-4" />} label="People">
+            <input type="number" min={1} max={20} value={plan.people}
+              onChange={(e) => update("people", +e.target.value)}
+              className="w-full bg-transparent outline-none font-medium" />
+          </Field>
+        </div>
+        <div className="md:col-span-2">
         <Field icon={<Wallet className="w-4 h-4" />} label={`Budget · ₹${plan.budget.toLocaleString("en-IN")}`}>
           <input type="range" min={3000} max={150000} step={500} value={plan.budget}
             onChange={(e) => update("budget", +e.target.value)}
-            className="w-full accent-[var(--coral)] md:col-span-2" />
+            className="w-full accent-[var(--coral)]" />
         </Field>
+        </div>
       </div>
 
-      {/* Chips */}
-      <ChipRow label="Who's traveling · pick any" options={groups} multi values={plan.group} onToggle={(v) => toggleMulti("group", v)} />
-      <ChipRow label="Purpose · pick any" options={purposes} multi values={plan.purpose} onToggle={(v) => toggleMulti("purpose", v)} />
-      <ChipRow label="Food · pick any" options={foods} multi values={plan.food} onToggle={(v) => toggleMulti("food", v)} />
-      <ChipRow label="Comfort" options={comforts} value={plan.comfort} onChange={(v) => update("comfort", v)} />
+      {/* Mobile-only "More filters" toggle */}
+      <button
+        type="button"
+        onClick={() => setMoreOpen((v) => !v)}
+        className="md:hidden mt-4 w-full inline-flex items-center justify-center gap-1 text-xs font-medium py-2 rounded-full bg-secondary/70 text-foreground"
+      >
+        {moreOpen ? "Hide filters" : "More filters"}
+        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${moreOpen ? "rotate-180" : ""}`} />
+      </button>
 
-      {/* Split stay */}
-      <label className="mt-4 flex items-center justify-between p-3 rounded-2xl bg-secondary/60 cursor-pointer">
-        <div>
-          <div className="font-medium text-sm">Open to split-stay plans</div>
-          <div className="text-xs text-muted-foreground">e.g. parents in hotel, you in nearby hostel</div>
-        </div>
-        <button
-          type="button"
-          onClick={() => update("splitStay", !plan.splitStay)}
-          className={`relative w-11 h-6 rounded-full transition-colors`}
-          style={{ backgroundColor: plan.splitStay ? "var(--coral)" : "var(--muted)" }}
-          aria-pressed={plan.splitStay}
-        >
-          <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${plan.splitStay ? "translate-x-5" : ""}`} />
-        </button>
-      </label>
+      {/* Collapsible block (mobile collapse, always shown on md+) */}
+      <div className={`${moreOpen ? "block" : "hidden"} md:block`}>
+        <ChipRow label="Who's traveling · pick any" options={groups} multi values={plan.group} onToggle={(v) => toggleMulti("group", v)} />
+        <ChipRow label="Purpose · pick any" options={purposes} multi values={plan.purpose} onToggle={(v) => toggleMulti("purpose", v)} />
+        <ChipRow label="Food · pick any" options={foods} multi values={plan.food} onToggle={(v) => toggleMulti("food", v)} />
+        <ChipRow label="Comfort" options={comforts} value={plan.comfort} onChange={(v) => update("comfort", v)} />
+
+        {/* Split stay */}
+        <label className="mt-4 flex items-center justify-between p-3 rounded-2xl bg-secondary/60 cursor-pointer">
+          <div>
+            <div className="font-medium text-sm">Open to split-stay plans</div>
+            <div className="text-xs text-muted-foreground">e.g. parents in hotel, you in nearby hostel</div>
+          </div>
+          <button
+            type="button"
+            onClick={() => update("splitStay", !plan.splitStay)}
+            className={`relative w-11 h-6 rounded-full transition-colors`}
+            style={{ backgroundColor: plan.splitStay ? "var(--coral)" : "var(--muted)" }}
+            aria-pressed={plan.splitStay}
+          >
+            <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${plan.splitStay ? "translate-x-5" : ""}`} />
+          </button>
+        </label>
+      </div>
 
       <motion.button
         whileHover={{ scale: 1.02 }}
@@ -209,6 +229,28 @@ export function SearchPanel({ onSearch }: { onSearch: (p: TripPlan) => void }) {
         </span>
         <span className="absolute inset-0 liquid-bg opacity-0 hover:opacity-30 transition-opacity" />
       </motion.button>
+
+      {/* Sample plan demo card */}
+      <div className="mt-5 rounded-2xl border-2 border-dashed p-4 bg-secondary/30 relative"
+           style={{ borderColor: "color-mix(in oklab, var(--saffron) 60%, transparent)" }}>
+        <span className="absolute -top-2.5 left-4 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider text-white"
+              style={{ background: "var(--saffron)" }}>
+          Sample plan
+        </span>
+        <div className="text-[11px] font-semibold text-muted-foreground mb-2 mt-1">
+          Sample plan · Jaipur · 3 nights · 2 people
+        </div>
+        <ul className="space-y-1.5 text-xs text-foreground">
+          <li><span className="font-semibold">Night 1–2:</span> Sunder Niwas Homestay, Bani Park — <span className="font-semibold">₹1,850/night</span> <span className="text-muted-foreground">(home-cooked breakfast included)</span></li>
+          <li><span className="font-semibold">Night 3:</span> The Pink Door Hostel, M.I. Road — <span className="font-semibold">₹650/night</span> <span className="text-muted-foreground">(great for solo night out)</span></li>
+          <li className="pt-1" style={{ color: "var(--coral)" }}>
+            <span className="font-semibold">Estimated savings vs booking.com: ₹2,200</span>
+          </li>
+        </ul>
+        <div className="text-[10px] text-muted-foreground mt-2 italic">
+          This is a sample. Your plan will be personalised.
+        </div>
+      </div>
     </motion.div>
   );
 }
