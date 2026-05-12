@@ -251,6 +251,9 @@ function DestinationPage() {
 
           {/* STAY STRATEGIES */}
           <Block eyebrow="Smart stay engine" title="Example stay strategies" icon={<Star className="w-5 h-5" />}>
+            <div className="text-xs text-muted-foreground mb-3 inline-flex items-center gap-1">
+              Open to split-stay combinations <SplitStayInfo city={d.name} />
+            </div>
             <div className="space-y-3">
               {d.stays.map((st, i) => (
                 <motion.div key={st.name + i}
