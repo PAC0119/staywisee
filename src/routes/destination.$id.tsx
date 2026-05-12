@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { DESTINATIONS, type Destination } from "@/components/staywise/destinations";
 import { DestinationPlanner } from "@/components/staywise/DestinationPlanner";
+import { PricePrediction } from "@/components/staywise/PricePrediction";
 
 export const Route = createFileRoute("/destination/$id")({
   loader: ({ params }) => {
@@ -232,6 +233,9 @@ function DestinationPage() {
               })}
             </div>
           </Block>
+
+          {/* PRICE PREDICTION */}
+          <PricePrediction d={d} />
 
           {/* FOOD */}
           <Block eyebrow="Food highlights" title="What to eat & where" icon={<Utensils className="w-5 h-5" />}>
