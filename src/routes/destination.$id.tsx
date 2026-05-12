@@ -359,14 +359,13 @@ function DestinationPage() {
         }`}
       >
         <div className="max-w-3xl mx-auto m-3 rounded-2xl bg-card/95 backdrop-blur border shadow-lift p-2 flex items-center gap-2">
-          <Link
-            to="/"
-            search={{ destination: d.name }}
+          <a
+            href={`/?destination=${encodeURIComponent(d.name)}#planner`}
             className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white shadow-glow-coral"
             style={{ backgroundImage: "var(--gradient-warm)" }}
           >
             <Compass className="w-4 h-4" /> Plan a trip to {d.name} →
-          </Link>
+          </a>
           <a
             href={waUrl}
             target="_blank"
