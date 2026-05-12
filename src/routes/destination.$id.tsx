@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { DESTINATIONS, type Destination } from "@/components/staywise/destinations";
 import { DestinationPlanner } from "@/components/staywise/DestinationPlanner";
+import { PricePrediction } from "@/components/staywise/PricePrediction";
 
 export const Route = createFileRoute("/destination/$id")({
   loader: ({ params }) => {
