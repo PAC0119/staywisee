@@ -155,6 +155,23 @@ export function seasonStatusFor(d: Destination, monthIndex: number = new Date().
   return "off";
 }
 
+// Estimated savings vs peak-season price for the destination.
+// Returns a low–high percentage range, or null if the selected month is itself peak.
+const PRICE_RATIO: Record<Level, number> = { Low: 1.0, Mid: 1.35, High: 1.7 };
+export function priceSavingsFor(
+  d: Destination,
+  monthIndex: number = new Date().getMonth(),
+): { low: number; high: number } | null {
+  const months = dataFor(d);
+  const peak = Math.max(...months.map((m) => PRICE_RATIO[m.price]));
+  const cur = PRICE_RATIO[months[monthIndex].price];
+  const pct = Math.round(((peak - cur) / peak) * 100);
+  if (pct < 5) return null;
+  const low = Math.max(5, pct - 8);
+  const high = Math.min(60, pct + 8);
+  return { low, high };
+}
+
 const LEVEL_COLORS: Record<Level, { dot: string; bg: string; ring: string; label: string }> = {
   Low:  { dot: "#16a34a", bg: "rgba(22,163,74,0.10)",  ring: "rgba(22,163,74,0.45)",  label: "Low"  },
   Mid:  { dot: "#d97706", bg: "rgba(217,119,6,0.10)",  ring: "rgba(217,119,6,0.45)",  label: "Mid"  },

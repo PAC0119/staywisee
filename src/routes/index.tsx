@@ -8,7 +8,7 @@ import { SearchPanel, type TripPlan } from "@/components/staywise/SearchPanel";
 import { LiquidLoader } from "@/components/staywise/LiquidLoader";
 import { Results } from "@/components/staywise/Results";
 import { DESTINATIONS, destinationsByGroup, type Destination } from "@/components/staywise/destinations";
-import { seasonStatusFor } from "@/components/staywise/PricePrediction";
+import { seasonStatusFor, priceSavingsFor } from "@/components/staywise/PricePrediction";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -25,6 +25,7 @@ const CATEGORY_IDS: Record<string, string[]> = {
   International: ["bali", "vietnam", "singapore", "dubai", "thailand", "malaysia", "maldives", "srilanka", "sri-lanka", "nepal", "bhutan", "paris", "london", "tokyo", "hanoi", "bangkok"],
 };
 const CATEGORIES = ["All", "Beach", "Hill station", "Heritage", "Spiritual", "Adventure", "Wildlife", "International", "Budget (under ₹2k/night)"];
+const MONTH_LABELS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 function destMatchesCategory(d: Destination, cat: string): boolean {
   if (cat === "All") return true;
@@ -49,6 +50,7 @@ function DestinationExplorer({ onPick }: { onPick: (name: string) => void }) {
   const groups = destinationsByGroup();
   const order = ["Rajasthan", "Gujarat", "India Popular", "Bali", "Vietnam", "Singapore", "International"];
   const [cat, setCat] = useState("All");
+  const [month, setMonth] = useState<number>(new Date().getMonth());
 
   const filtered = cat === "All" ? null : DESTINATIONS.filter((d) => destMatchesCategory(d, cat));
 
@@ -86,11 +88,43 @@ function DestinationExplorer({ onPick }: { onPick: (name: string) => void }) {
               );
             })}
           </div>
+          {/* Month selector — preview "Best time" badge for any month */}
+          <div className="mt-3 flex items-center gap-3 flex-wrap">
+            <span className="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold">
+              Preview month
+            </span>
+            <div className="flex gap-1 overflow-x-auto no-scrollbar">
+              {MONTH_LABELS.map((m, i) => {
+                const active = i === month;
+                return (
+                  <button
+                    key={m}
+                    onClick={() => setMonth(i)}
+                    className={`shrink-0 px-2.5 py-1 rounded-full text-[11px] font-semibold border transition ${
+                      active ? "text-white border-transparent shadow-glow-coral" : "bg-background text-foreground border-border hover:bg-secondary"
+                    }`}
+                    style={active ? { backgroundImage: "var(--gradient-warm)" } : undefined}
+                    aria-pressed={active}
+                  >
+                    {m}
+                  </button>
+                );
+              })}
+            </div>
+            {month !== new Date().getMonth() && (
+              <button
+                onClick={() => setMonth(new Date().getMonth())}
+                className="text-[11px] underline-offset-2 hover:underline text-muted-foreground"
+              >
+                Reset to this month
+              </button>
+            )}
+          </div>
         </div>
 
         {filtered ? (
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {filtered.map((d) => <DestCard key={d.id} d={d} onPick={onPick} />)}
+            {filtered.map((d) => <DestCard key={d.id} d={d} onPick={onPick} month={month} />)}
             {filtered.length === 0 && (
               <div className="col-span-full text-sm text-muted-foreground py-8 text-center">
                 No destinations match yet — try another category.
@@ -103,7 +137,7 @@ function DestinationExplorer({ onPick }: { onPick: (name: string) => void }) {
               <div key={g}>
                 <div className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">{g}</div>
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                  {groups[g].slice(0, 12).map((d) => <DestCard key={d.id} d={d} onPick={onPick} />)}
+                  {groups[g].slice(0, 12).map((d) => <DestCard key={d.id} d={d} onPick={onPick} month={month} />)}
                 </div>
               </div>
             ))}
@@ -118,15 +152,17 @@ function DestinationExplorer({ onPick }: { onPick: (name: string) => void }) {
   );
 }
 
-function DestCard({ d, onPick }: { d: Destination; onPick: (name: string) => void }) {
-  const season = seasonStatusFor(d);
+function DestCard({ d, onPick, month }: { d: Destination; onPick: (name: string) => void; month?: number }) {
+  const m = month ?? new Date().getMonth();
+  const season = seasonStatusFor(d, m);
+  const savings = priceSavingsFor(d, m);
   const badge = season === "great"
     ? { label: "Great time to go", bg: "rgba(22,163,74,0.12)", color: "#15803d", ring: "rgba(22,163,74,0.35)" }
     : season === "decent"
     ? { label: "Decent time to go", bg: "rgba(217,119,6,0.12)", color: "#b45309", ring: "rgba(217,119,6,0.35)" }
     : null;
   return (
-    <div className="lift rounded-2xl border bg-background p-4 text-left transition-all flex flex-col relative">
+    <div className="lift rounded-2xl border bg-background p-4 text-left transition-all flex flex-col relative pb-10">
       <button onClick={() => onPick(d.name)} className="text-left">
         <div className="text-2xl mb-1">{d.emoji}</div>
         <div className="font-semibold text-sm leading-tight">{d.name}</div>
@@ -137,15 +173,26 @@ function DestCard({ d, onPick }: { d: Destination; onPick: (name: string) => voi
         style={{ color: "var(--coral)" }}>
         View guide →
       </Link>
-      {badge && (
-        <span
-          className="absolute bottom-2 right-2 text-[9px] font-semibold px-1.5 py-0.5 rounded-full border"
-          style={{ background: badge.bg, color: badge.color, borderColor: badge.ring }}
-          title={`${badge.label} — based on current month`}
-        >
-          {badge.label}
-        </span>
-      )}
+      <div className="absolute bottom-2 right-2 left-2 flex items-center justify-end gap-1 flex-wrap">
+        {savings && (
+          <span
+            className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full border"
+            style={{ background: "rgba(20,184,166,0.10)", color: "#0f766e", borderColor: "rgba(20,184,166,0.35)" }}
+            title={`Estimated stay savings vs peak season in ${MONTH_LABELS[m]}`}
+          >
+            Save {savings.low}–{savings.high}%
+          </span>
+        )}
+        {badge && (
+          <span
+            className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full border"
+            style={{ background: badge.bg, color: badge.color, borderColor: badge.ring }}
+            title={`${badge.label} — ${MONTH_LABELS[m]}`}
+          >
+            {badge.label}
+          </span>
+        )}
+      </div>
     </div>
   );
 }
