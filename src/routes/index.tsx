@@ -8,6 +8,7 @@ import { SearchPanel, type TripPlan } from "@/components/staywise/SearchPanel";
 import { LiquidLoader } from "@/components/staywise/LiquidLoader";
 import { Results } from "@/components/staywise/Results";
 import { DESTINATIONS, destinationsByGroup, type Destination } from "@/components/staywise/destinations";
+import { seasonStatusFor } from "@/components/staywise/PricePrediction";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -118,8 +119,14 @@ function DestinationExplorer({ onPick }: { onPick: (name: string) => void }) {
 }
 
 function DestCard({ d, onPick }: { d: Destination; onPick: (name: string) => void }) {
+  const season = seasonStatusFor(d);
+  const badge = season === "great"
+    ? { label: "Great time to go", bg: "rgba(22,163,74,0.12)", color: "#15803d", ring: "rgba(22,163,74,0.35)" }
+    : season === "decent"
+    ? { label: "Decent time to go", bg: "rgba(217,119,6,0.12)", color: "#b45309", ring: "rgba(217,119,6,0.35)" }
+    : null;
   return (
-    <div className="lift rounded-2xl border bg-background p-4 text-left transition-all flex flex-col">
+    <div className="lift rounded-2xl border bg-background p-4 text-left transition-all flex flex-col relative">
       <button onClick={() => onPick(d.name)} className="text-left">
         <div className="text-2xl mb-1">{d.emoji}</div>
         <div className="font-semibold text-sm leading-tight">{d.name}</div>
@@ -130,6 +137,15 @@ function DestCard({ d, onPick }: { d: Destination; onPick: (name: string) => voi
         style={{ color: "var(--coral)" }}>
         View guide →
       </Link>
+      {badge && (
+        <span
+          className="absolute bottom-2 right-2 text-[9px] font-semibold px-1.5 py-0.5 rounded-full border"
+          style={{ background: badge.bg, color: badge.color, borderColor: badge.ring }}
+          title={`${badge.label} — based on current month`}
+        >
+          {badge.label}
+        </span>
+      )}
     </div>
   );
 }
