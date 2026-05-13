@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Compass, Sparkles, ShieldCheck, Map, Quote } from "lucide-react";
 import { AnimatedGlobe } from "@/components/staywise/AnimatedGlobe";
@@ -70,7 +70,7 @@ function DestinationExplorer({ onPick }: { onPick: (name: string) => void }) {
         </div>
 
         {/* Filter chips — sticky under the heading */}
-        <div className="sticky top-0 z-20 -mx-5 md:-mx-10 px-5 md:px-10 py-3 mb-6 bg-card/90 backdrop-blur border-b">
+        <div className="sticky top-0 z-20 -mx-5 md:-mx-10 px-5 md:px-10 py-3 mb-6 bg-card border-b">
           <div className="flex gap-2 overflow-x-auto no-scrollbar -mb-1 pb-1">
             {CATEGORIES.map((c) => {
               const active = c === cat;
