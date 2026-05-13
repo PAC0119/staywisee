@@ -142,6 +142,19 @@ function dataFor(d: Destination): MonthData[] {
   return DATA[d.id] ?? TEMPLATES[profileFor(d)];
 }
 
+export type SeasonStatus = "great" | "decent" | "off";
+export function seasonStatusFor(d: Destination, monthIndex: number = new Date().getMonth()): SeasonStatus {
+  const months = dataFor(d);
+  const ranked = months
+    .map((m, i) => ({ i, score: m.score, price: m.price }))
+    .sort((a, b) => b.score - a.score || (a.price === "Low" ? -1 : 1));
+  const top3 = new Set(ranked.slice(0, 3).map((r) => r.i));
+  const next3 = new Set(ranked.slice(3, 6).map((r) => r.i));
+  if (top3.has(monthIndex)) return "great";
+  if (next3.has(monthIndex)) return "decent";
+  return "off";
+}
+
 const LEVEL_COLORS: Record<Level, { dot: string; bg: string; ring: string; label: string }> = {
   Low:  { dot: "#16a34a", bg: "rgba(22,163,74,0.10)",  ring: "rgba(22,163,74,0.45)",  label: "Low"  },
   Mid:  { dot: "#d97706", bg: "rgba(217,119,6,0.10)",  ring: "rgba(217,119,6,0.45)",  label: "Mid"  },
