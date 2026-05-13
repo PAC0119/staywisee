@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { memo, useMemo, useState } from "react";
+import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Compass, Sparkles, ShieldCheck, Map, Quote } from "lucide-react";
 import { AnimatedGlobe } from "@/components/staywise/AnimatedGlobe";
