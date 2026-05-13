@@ -70,7 +70,7 @@ function DestinationExplorer({ onPick }: { onPick: (name: string) => void }) {
         </div>
 
         {/* Filter chips — sticky under the heading */}
-        <div className="sticky top-0 z-20 -mx-5 md:-mx-10 px-5 md:px-10 py-3 mb-6 bg-card/90 backdrop-blur border-b">
+        <div className="sticky top-0 z-20 -mx-5 md:-mx-10 px-5 md:px-10 py-3 mb-6 bg-card border-b">
           <div className="flex gap-2 overflow-x-auto no-scrollbar -mb-1 pb-1">
             {CATEGORIES.map((c) => {
               const active = c === cat;
@@ -247,10 +247,10 @@ function Index() {
 
       {/* HERO */}
       <section className="relative bg-gradient-hero overflow-hidden pt-28 pb-20 md:pb-32">
-        {/* decorative blobs */}
-        <div className="absolute top-32 -left-32 w-96 h-96 liquid-bg rounded-full opacity-30 blur-3xl animate-blob" />
-        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full opacity-30 blur-3xl animate-blob"
-             style={{ background: "var(--teal)", animationDelay: "-4s" }} />
+        {/* decorative blobs (static — animation removed for perf) */}
+        <div className="absolute top-32 -left-32 w-96 h-96 liquid-bg rounded-full opacity-30 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full opacity-25 blur-3xl pointer-events-none"
+             style={{ background: "var(--teal)" }} />
 
         <div className="relative max-w-7xl mx-auto px-5 md:px-10 grid lg:grid-cols-2 gap-10 items-center">
           {/* Left copy */}
