@@ -7,6 +7,7 @@ import { Link } from "@tanstack/react-router";
 import type { TripPlan } from "./SearchPanel";
 import { Itinerary } from "./Itinerary";
 import type { Destination, StaySuggestion } from "./destinations";
+import { DESTINATIONS } from "./destinations";
 
 const inr = (n: number) => "₹" + n.toLocaleString("en-IN");
 const range = (r: [number, number]) => `${inr(r[0])}–${inr(r[1])}`;
@@ -185,6 +186,9 @@ export function Results({ plan }: { plan: TripPlan }) {
             <p className="text-sm text-muted-foreground">{d.safetyNote}</p>
           </div>
         </div>
+
+        {/* Other places you can visit */}
+        <OtherPlaces current={d} />
       </div>
     </div>
   );
@@ -340,3 +344,45 @@ function InfoCard({ icon, title, items, color }:
 }
 
 export { Heart };
+
+function OtherPlaces({ current }: { current: Destination }) {
+  // Prefer same group, then fill with a diverse mix from other groups.
+  const sameGroup = DESTINATIONS.filter((o) => o.group === current.group && o.id !== current.id);
+  const others = DESTINATIONS.filter((o) => o.group !== current.group && o.id !== current.id);
+  const picks = [...sameGroup.slice(0, 4), ...others.slice(0, 8 - Math.min(4, sameGroup.length))].slice(0, 8);
+
+  return (
+    <section className="mt-16">
+      <SectionTitle eyebrow="Keep exploring" title="Other places you can visit" />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {picks.map((o, i) => (
+          <motion.div
+            key={o.id}
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.04 }}
+          >
+            <Link
+              to="/destination/$id"
+              params={{ id: o.id }}
+              className="lift rounded-2xl border bg-card p-4 block h-full"
+            >
+              <div className="flex items-start justify-between mb-1">
+                <div className="text-3xl">{o.emoji}</div>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-secondary font-medium uppercase tracking-wide">
+                  {o.group}
+                </span>
+              </div>
+              <div className="font-semibold text-sm leading-tight mt-2">{o.name}</div>
+              <div className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">{o.tagline}</div>
+              <div className="mt-3 flex items-center gap-1 text-[11px] font-medium" style={{ color: "var(--coral)" }}>
+                View guide <ArrowRight className="w-3 h-3" />
+              </div>
+            </Link>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
