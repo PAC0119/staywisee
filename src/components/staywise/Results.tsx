@@ -7,6 +7,7 @@ import { Link } from "@tanstack/react-router";
 import type { TripPlan } from "./SearchPanel";
 import { Itinerary } from "./Itinerary";
 import type { Destination, StaySuggestion } from "./destinations";
+import { DESTINATIONS } from "./destinations";
 
 const inr = (n: number) => "₹" + n.toLocaleString("en-IN");
 const range = (r: [number, number]) => `${inr(r[0])}–${inr(r[1])}`;
@@ -185,6 +186,9 @@ export function Results({ plan }: { plan: TripPlan }) {
             <p className="text-sm text-muted-foreground">{d.safetyNote}</p>
           </div>
         </div>
+
+        {/* Other places you can visit */}
+        <OtherPlaces current={d} />
       </div>
     </div>
   );
