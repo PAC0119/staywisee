@@ -2,6 +2,7 @@ import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/r
 
 import appCss from "../styles.css?url";
 import { TapLoader } from "../components/staywise/TapLoader";
+import { CinematicParticles } from "../components/staywise/CinematicParticles";
 
 function NotFoundComponent() {
   return (
@@ -78,6 +79,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   return (
     <>
+      <CinematicParticles density={70} />
       <Outlet />
       <TapLoader />
     </>
